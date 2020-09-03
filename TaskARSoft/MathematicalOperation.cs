@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace TaskARSoft
 {
-    public class MathematicalOperation
+    public class MathematicalOperation : Form1
     {
         //нужна проверка на 0 после знака /
         
@@ -31,9 +31,14 @@ namespace TaskARSoft
         private string min = "min";
         private string max = "max";
         private Match m;
+
+        Form1 Form1 = new Form1(); 
+        
         Regex regexTrigonometric = new Regex(@"\w+");
-        Regex regexMultyplyOrDivide = new Regex(@"((\-)?\d*(\,[0-9]*)?)(\*|\/)((\-)?\d+(\,[0-9]*)?)");
-        Regex regexPlusOrMinus = new Regex(@"((\-)?\d*(\,[0-9]*)?)(\+|\-)((\-)?\d+(\,[0-9]*)?)");
+        Regex regexMultyplyOrDivideCount = new Regex(@"\*+|\/+");
+        Regex regexPlusOrMinusCount = new Regex(@"\-+|\++");
+        Regex regexMultyplyOrDivide = new Regex(@"((\-)?\d+(\,[0-9]*)?)(\*|\/)((\-)?\d+(\,[0-9]*)?)");
+        Regex regexPlusOrMinus = new Regex(@"((\-)?\d+(\,[0-9]*)?)(\+|\-)(\d+(\,[0-9]*)?)");
         public MathematicalOperation(Match m, string x, string y)
         {
             this.m = m ?? throw new ArgumentNullException(nameof(m));
@@ -44,10 +49,12 @@ namespace TaskARSoft
             CalcOperation();
             CalcTrigonometrik();
         }
-        public MathematicalOperation(string m)
+        public MathematicalOperation(string m, string x, string y)
         {
             this.result = m.Trim('(', ')') ?? throw new ArgumentNullException(nameof(m));
-            
+            this.x = x;
+            this.y = y;
+            SetValues();
             CalcOperation();
         }
 
@@ -63,41 +70,56 @@ namespace TaskARSoft
         {
             result = result.Replace("x", x).Replace("y", y);
         }
-        private void CalcOperation()                                                                //определяем какой математически оператор чтоит первый умножение или деление
+        private void CalcOperation()                                                                //определяем какой математически оператор cтоит первый умножение или деление
         {                                                                                           //происходит расчет слева на право
-            flag = true;
-            while (result.Contains(divide) || result.Contains(multyply))
-            {
-                MatchCollection matchMultyplyOrDivide = regexMultyplyOrDivide.Matches(result);
 
-                if (matchMultyplyOrDivide[0].ToString().Contains(multyply))
+            MatchCollection matchMultyplyOrDivideCount = regexMultyplyOrDivideCount.Matches(result);
+            MatchCollection matchPlusOrMinusCount = regexPlusOrMinusCount.Matches(result);
+
+            if (result.Contains(divide) || result.Contains(multyply))
+            {
+                int numberOfIterations = matchMultyplyOrDivideCount.Count;
+                for (int i = 0; i < numberOfIterations; i++)
                 {
-                    SetResult(multyply, matchMultyplyOrDivide);
-                }
-                else
-                {
-                    SetResult(divide, matchMultyplyOrDivide);
+                    MatchCollection matchMultyplyOrDivide = regexMultyplyOrDivide.Matches(result);
+
+                    if (matchMultyplyOrDivide[0].ToString().Contains(multyply))
+                    {
+                        SetResult(multyply, matchMultyplyOrDivide);
+                    }
+                    else
+                    {
+                        SetResult(divide, matchMultyplyOrDivide);
+                    }
                 }
             }
-            while ( flag == true && (result.Contains(plus) || result.Contains(minus)))               //так же и сложение и вычитание, слева на право
+            if(result.Contains(plus) || result.Contains(minus))                                    //так же и сложение и вычитание, слева на право
             {
-                MatchCollection matchPlusOrMinus = regexPlusOrMinus.Matches(result);
-                
-                if (matchPlusOrMinus[0].ToString().Contains(plus))
+                int numberOfIterations;
+                if (matchPlusOrMinusCount[0].ToString().Equals("-") && matchPlusOrMinusCount.Count > 1) numberOfIterations = (matchPlusOrMinusCount.Count - 1);
+                else numberOfIterations = matchPlusOrMinusCount.Count;
+
+                for (int i = 0; i < numberOfIterations; i++)
                 {
-                    SetResult(plus, matchPlusOrMinus);
-                }
-                else
-                {
-                    SetResult(minus, matchPlusOrMinus);
+                    MatchCollection matchPlusOrMinus = regexPlusOrMinus.Matches(result);
+
+                    if (matchPlusOrMinus[0].ToString().Contains(plus))
+                    {
+                        SetResult(plus, matchPlusOrMinus);
+                    }
+                    else
+                    {
+                        SetResult(minus, matchPlusOrMinus);
+                    }
                 }
             }
         }
 
-        private bool SetResult(char c, MatchCollection match)                                        //производим расчет а зависимости от математического оператора
+        private void SetResult(char c, MatchCollection match)                                        //производим расчет а зависимости от математического оператора
         {
+            
             string[] multipliers = match[0].ToString().Split(new char[] { c });
-            if (multipliers[0] != "" && multipliers[1] != "")
+            if (multipliers[0] != "")
             {
                 if (c.Equals('*'))
                 {
@@ -105,7 +127,14 @@ namespace TaskARSoft
                 }
                 else if (c.Equals('/'))
                 {
-                    res = Convert.ToDouble(multipliers[0]) / Convert.ToDouble(multipliers[1]);
+                    if (Convert.ToDouble(multipliers[1]) == 0)
+                    {
+                        MessageBox.Show("В результате получается деление на 0, а на 0 делить нельзя","Ошибка", MessageBoxButtons.OK);
+                    }
+                    else
+                    {
+                        res = Convert.ToDouble(multipliers[0]) / Convert.ToDouble(multipliers[1]);
+                    }
                 }
                 else if (c.Equals('+'))
                 {
@@ -116,11 +145,13 @@ namespace TaskARSoft
                     res = Convert.ToDouble(multipliers[0]) - Convert.ToDouble(multipliers[1]);
                 }
                 result = result.Replace(match[0].ToString(), res.ToString());
-                return flag = true;
+                
             }
             else
             {
-                return flag = false;
+                res = - Convert.ToDouble(multipliers[1]) - Convert.ToDouble(multipliers[2]);
+                result = result.Replace(match[0].ToString(), res.ToString());
+                
             }
         }
 

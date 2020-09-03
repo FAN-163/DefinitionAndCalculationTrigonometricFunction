@@ -10,7 +10,7 @@ namespace TaskARSoft
 {
     public class ParsingFunction
     {
-        //@"\w{2|3}\(\d+(\W*\d*)*\)|sin\(\d+(\W\d*)*\)|tg\(\d+(\W\d*)*\)|ctg\(\d+(\W\d*)*\)|pow\(\d+\,\d+\)|min\(\d+\,\d+\)|max\(\d+\,\d+\), (\w{2}|\w{3})\(\d+\,\d+\), |(\w{2}|\w{3})\(\w*|\d+\,\w*|\d+\)"
+        
 
         public string functionResult { get; private set; }
         private string x;
@@ -26,14 +26,14 @@ namespace TaskARSoft
             this.y = y;
 
             CheckTrigonometricFunction();
-            CalculateFunction();
+            if(match.Count != 0) CalculateFunction();
             CheckBrackets();
         }
 
 
         private MatchCollection CheckTrigonometricFunction()
         {
-            match = regexTrigonometricFunction.Matches(functionResult);                                     //определяем тригонометрические функции
+            match = regexTrigonometricFunction.Matches(functionResult);                                   //определяем тригонометрические функции
             return match;
         }
 
@@ -57,10 +57,10 @@ namespace TaskARSoft
                 string worckValue = functionResult.Substring(functionResult.LastIndexOf("("),              
                                                              functionResult.IndexOf(")") -                 //определяем последнюю открывающуюся скобку, и первую закрывающуюся
                                                              functionResult.LastIndexOf("(") + 1);         //все что между ними отправляем на расчет, через перегруженный конструктор
-                mathematicalOperation = new MathematicalOperation(worckValue);                             //и переписывае найденное значение между скобок на результат расчета
+                mathematicalOperation = new MathematicalOperation(worckValue, x, y);                       //и переписывае найденное значение между скобок на результат расчета
                 functionResult = functionResult.Replace(worckValue, mathematicalOperation.result);
             }
-            mathematicalOperation = new MathematicalOperation(functionResult);                             //финальный расчет отдельно, так как скобок больше нет
+            mathematicalOperation = new MathematicalOperation(functionResult, x, y);                       //финальный расчет отдельно, так как скобок больше нет
             functionResult = mathematicalOperation.result;
         }
         
