@@ -31,11 +31,11 @@ namespace TaskARSoft
             MatchCollection matchAbsenceOperator = regexAbsenceOperator.Matches(inputFunction);
             if (matchOperator.Count > 0)
             {
-                MessageBox.Show("Не может быть два оператора '+, -, *, /' подрят", "ошибка", MessageBoxButtons.OK);
+                MessageBox.Show("Не может быть два оператора '+, -, *, /' подрят", "Ошибка ввода", MessageBoxButtons.OK);
             }
             if (matchAbsenceOperator.Count > 0)
             {
-                MessageBox.Show("Пропущен оператор '+, -, *, /' ", "ошибка", MessageBoxButtons.OK);
+                MessageBox.Show("Пропущен оператор '+, -, *, /' ", "Ошибка ввода", MessageBoxButtons.OK);
             }
             inputX = X.Text.Replace(" ", "").ToLower();
             inputY = Y.Text.Replace(" ", "").ToLower();
@@ -47,13 +47,13 @@ namespace TaskARSoft
             }
             catch
             {
-                MessageBox.Show("Проверьте правильность написания функции", "Ошибка", MessageBoxButtons.OK);
+                MessageBox.Show("Проверьте правильность написания функции", "Ошибка ввода", MessageBoxButtons.OK);
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Function.Text = "sin(x+y-x*y/y)+ 5- ((cos( y)- tg(x + y)+ cos(y*x+y-y)-tg(y)) + pow(x ,y) - min(x,y)) +max(x,y) +x -y";
+            Function.Text = "sin(x+y-x*y/y)*5/ ((cos( y)- tg(x + y)+ cos(y*x+y-y)-tg(y)) / pow(x ,y) /x - min(x,y)) +max(x,y) +x -y";
             X.Text = "10";
             Y.Text = "2";
         }

@@ -129,7 +129,7 @@ namespace TaskARSoft
                 {
                     if (Convert.ToDouble(multipliers[1]) == 0)
                     {
-                        MessageBox.Show("В результате получается деление на 0, а на 0 делить нельзя","Ошибка", MessageBoxButtons.OK);
+                        MessageBox.Show("В результате подъсчета возникла ситуация, деление на 0","Измените функцию", MessageBoxButtons.OK);
                     }
                     else
                     {
